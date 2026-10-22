@@ -1,0 +1,26 @@
+# .NET build files
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+
+# Angular and Node.js
+**/node_modules/
+**/dist/
+**/.angular/
+npm-debug.log*
+
+# Environment and secret files
+.env
+.env.*
+!.env.example
+**/appsettings.Development.json
+secrets.json
+
+# IDE settings
+.vscode/
+
+# Operating system files
+Thumbs.db
+.DS_Store

@@ -1,0 +1,32 @@
+﻿# .NET
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+
+# Angular
+**/node_modules/
+**/dist/
+**/.angular/
+npm-debug.log*
+
+# Secrets
+.env
+.env.*
+!.env.example
+**/appsettings.Development.json
+secrets.json
+
+# IDE and OS
+.vscode/
+Thumbs.db
+.DS_Store
+
+# Local Git metadata backup
+trustvault-ui-git-backup/
+
+trustvault-ui/.git-backup/
+
+# Uploaded documents
+TrustVault.Api/Storage/

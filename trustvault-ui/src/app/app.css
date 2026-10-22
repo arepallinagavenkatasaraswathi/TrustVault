@@ -1,0 +1,256 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #172b49, #5140bd);
+}
+
+.login-card,
+.dashboard-card {
+  width: 100%;
+  max-width: 760px;
+  padding: 36px;
+  background: #ffffff;
+  border-radius: 22px;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+}
+
+.login-card {
+  max-width: 460px;
+}
+
+.logo {
+  color: #4338ca;
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+h1 {
+  color: #172033;
+  text-align: center;
+  font-size: 26px;
+  margin: 0 0 12px;
+}
+
+.subtitle {
+  color: #64748b;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0 0 28px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 13px;
+  border: none;
+  border-radius: 9px;
+  background: #eef0f8;
+  color: #344054;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  background: #4338ca;
+  color: #ffffff;
+}
+
+label {
+  display: block;
+  margin: 16px 0 8px;
+  color: #172033;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  font-size: 15px;
+}
+
+input:focus {
+  outline: 2px solid #a5b4fc;
+  border-color: #4338ca;
+}
+
+.primary-button,
+.logout-button,
+.refresh-button,
+.download-button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.primary-button {
+  width: 100%;
+  margin-top: 20px;
+  background: #4338ca;
+  color: #ffffff;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message {
+  margin-top: 18px;
+  color: #334155;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  margin: 26px 0 0;
+  color: #64748b;
+  text-align: center;
+  font-size: 13px;
+}
+
+.dashboard-card {
+  max-width: 850px;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.dashboard-logo {
+  text-align: left;
+  margin: 0 0 10px;
+}
+
+.dashboard-header .subtitle {
+  text-align: left;
+  margin: 0;
+}
+
+.logout-button {
+  background: #dc2626;
+  color: white;
+}
+
+.dashboard-section {
+  padding: 22px;
+  margin-top: 20px;
+  background: #f8f9ff;
+  border: 1px solid #e0e7ff;
+  border-radius: 14px;
+}
+
+.dashboard-section h2 {
+  margin: 0 0 12px;
+  color: #3730a3;
+  font-size: 19px;
+}
+
+.dashboard-section > p {
+  color: #475569;
+  line-height: 1.6;
+}
+
+.selected-file {
+  color: #3730a3;
+  overflow-wrap: anywhere;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.refresh-button {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.document-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 14px;
+  margin-top: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+}
+
+.document-info {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.document-info p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.download-button {
+  flex-shrink: 0;
+  background: #4338ca;
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .login-card,
+  .dashboard-card {
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  .dashboard-header {
+    align-items: flex-start;
+  }
+
+  .dashboard-header .logo {
+    font-size: 23px;
+  }
+
+  .document-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

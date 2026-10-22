@@ -1,0 +1,183 @@
+
+<div class="page">
+
+  <!-- LOGIN / REGISTER -->
+  <div class="login-card" [hidden]="isLoggedIn">
+    <div class="logo">🔐 TrustVault</div>
+    <h1>Secure Document Sharing</h1>
+    <p class="subtitle">Your documents. Your control.</p>
+
+    <div class="tabs">
+      <button type="button" [class.active]="!isRegister"
+        (click)="switchMode(false)">Login</button>
+      <button type="button" [class.active]="isRegister"
+        (click)="switchMode(true)">Register</button>
+    </div>
+
+    <form (ngSubmit)="submitForm()">
+      <label for="username">Username</label>
+      <input id="username" type="text" name="username"
+        [(ngModel)]="username" placeholder="Enter your username"
+        autocomplete="username" required />
+
+      <label for="password">Password</label>
+      <input id="password" type="password" name="password"
+        [(ngModel)]="password" placeholder="Enter your password"
+        [attr.autocomplete]="isRegister ? 'new-password' : 'current-password'"
+        required />
+
+      <button class="primary-button" type="submit"
+        [disabled]="isLoading">
+        {{ isLoading ? 'Please wait...' :
+           isRegister ? 'Create Account' : 'Sign In' }}
+      </button>
+    </form>
+
+    <p class="message" [hidden]="!message">{{ message }}</p>
+    <p class="footer">Protected by TrustVault security</p>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard-card" [hidden]="!isLoggedIn">
+
+    <header class="dashboard-header">
+      <div>
+        <div class="logo dashboard-logo">🔐 TrustVault</div>
+        <p class="subtitle">Your secure document dashboard</p>
+      </div>
+      <button type="button" class="logout-button"
+        (click)="logout()">Sign Out</button>
+    </header>
+
+    <h1>Welcome to TrustVault!</h1>
+
+    <!-- UPLOAD -->
+    <section class="dashboard-section">
+      <h2>📁 Upload a Document</h2>
+      <p>Select a document to securely upload. Maximum size: 10 MB.</p>
+
+      <label for="documentFile">Choose document</label>
+      <input id="documentFile" type="file"
+        (change)="onFileSelected($event)"
+        [disabled]="isUploading" />
+
+      <p class="selected-file" [hidden]="!selectedFile">
+        Selected: {{ selectedFile?.name }}
+      </p>
+
+      <button type="button" class="primary-button"
+        (click)="uploadDocument()"
+        [disabled]="isUploading || !selectedFile">
+        {{ isUploading ? 'Uploading...' : 'Upload Document' }}
+      </button>
+    </section>
+
+    <!-- DOCUMENT LIST AND SHARING -->
+    <section class="dashboard-section">
+      <div class="section-heading">
+        <h2>📄 My Accessible Documents</h2>
+        <button type="button" class="refresh-button"
+          (click)="loadDocuments()">Refresh</button>
+      </div>
+
+      <p *ngIf="documents.length === 0">
+        No accessible documents found yet.
+      </p>
+
+      <div class="document-item" *ngFor="let doc of documents">
+        <div class="document-info">
+          <strong>{{ doc.fileName }}</strong>
+          <p>{{ doc.createdAt | date:'medium' }}</p>
+          <p class="owner-label">
+            {{ doc.isOwner ? 'Owner: You' : 'Shared with you' }}
+          </p>
+        </div>
+
+        <div class="document-actions">
+          <button type="button" class="download-button"
+            (click)="downloadDocument(doc)">
+            Download
+          </button>
+        </div>
+
+        <!-- Only the owner sees the share/revoke controls -->
+        <div class="share-panel" *ngIf="doc.isOwner">
+          <label [for]="'shareUser-' + doc.id">
+            Share or revoke access by username
+          </label>
+
+          <input
+            [id]="'shareUser-' + doc.id"
+            type="text"
+            [name]="'shareUser-' + doc.id"
+            [(ngModel)]="shareUserNames[doc.id]"
+            placeholder="Enter recipient username"
+            autocomplete="off" />
+
+          <div class="share-actions">
+            <button type="button" class="download-button"
+              (click)="shareDocument(doc)"
+              [disabled]="sharingDocumentId === doc.id ||
+                          revokingDocumentId === doc.id">
+              {{ sharingDocumentId === doc.id
+                  ? 'Sharing...' : 'Share' }}
+            </button>
+
+            <button type="button" class="refresh-button"
+              (click)="revokeAccess(doc)"
+              [disabled]="sharingDocumentId === doc.id ||
+                          revokingDocumentId === doc.id">
+              {{ revokingDocumentId === doc.id
+                  ? 'Revoking...' : 'Revoke Access' }}
+            </button>
+          </div>
+
+          <p class="share-help">
+            Share grants Read access. Revoke Access removes active access
+            for the username entered above.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUDIT TRAIL -->
+    <section class="dashboard-section">
+      <div class="section-heading">
+        <h2>📋 Audit Trail</h2>
+        <button type="button" class="refresh-button"
+          (click)="loadAuditLogs()" [disabled]="isLoadingAudit">
+          {{ isLoadingAudit ? 'Refreshing...' : 'Refresh History' }}
+        </button>
+      </div>
+
+      <p *ngIf="isLoadingAudit && auditLogs.length === 0">
+        Loading audit history...
+      </p>
+
+      <p *ngIf="!isLoadingAudit && auditLogs.length === 0">
+        No audit records found yet. Upload or download a document,
+        then refresh the history.
+      </p>
+
+      <div class="audit-item" *ngFor="let log of auditLogs">
+        <div class="audit-heading">
+          <strong>{{ log.action }}</strong>
+          <span class="status"
+            [class.success]="log.success"
+            [class.failed]="!log.success">
+            {{ log.success ? 'Success' : 'Failed' }}
+          </span>
+        </div>
+
+        <p>{{ log.details }}</p>
+        <p class="audit-date">{{ log.timestamp | date:'medium' }}</p>
+        <p class="audit-id" *ngIf="log.documentId">
+          Document ID: {{ log.documentId }}
+        </p>
+      </div>
+    </section>
+
+    <p class="message" [hidden]="!message">{{ message }}</p>
+    <p class="footer">Your documents. Your control.</p>
+  </div>
+</div>
