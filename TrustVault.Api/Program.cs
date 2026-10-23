@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// CORS: Allow Angular frontend and local development
+// CORS configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("TrustVaultUI", policy =>
@@ -66,7 +66,7 @@ builder.Services.AddSwaggerGen(options =>
 // Application services
 builder.Services.AddScoped<DocumentPermissionService>();
 
-// Database connection from configuration/environment variables
+// Database connection
 var connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
@@ -114,12 +114,9 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Swagger is enabled only in Development
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger in Development and Production
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("TrustVaultUI");
 
