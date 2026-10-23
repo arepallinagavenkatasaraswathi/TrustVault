@@ -12,18 +12,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// CORS: Allow Angular frontend to call the backend
+// CORS: Allow Angular frontend and local development
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("TrustVaultUI", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200")
+            .WithOrigins(
+                "http://localhost:4200",
+                "https://trustvault-saraswathi.vercel.app",
+                "https://trust-vault-five.vercel.app"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
+// Swagger configuration
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -58,8 +63,10 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Application services
 builder.Services.AddScoped<DocumentPermissionService>();
 
+// Database connection from configuration/environment variables
 var connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
@@ -70,6 +77,7 @@ builder.Services.AddDbContext<TrustVaultDbContext>(options =>
         connectionString,
         ServerVersion.AutoDetect(connectionString)));
 
+// JWT configuration
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT key is missing.");
 
@@ -106,6 +114,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Swagger is enabled only in Development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
