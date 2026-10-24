@@ -35,3 +35,8 @@
 - **What the tool produced:** A checklist for README, sharing, revocation, and submission.
 - **What I did:** Tested sharing and revocation, updated README links, and submitted the project for evaluation.
 - **Commit:** Update README.md.
+- ## 2026-10-24 — Submission and final testing
+- **What I asked:** Help prepare the project for final submission and verify the required links.
+- **What the tool produced:** Guidance for documenting the live website, repository, and security testing.
+- **What I did:** Tested document sharing, access revocation, and download behavior using separate user accounts, then prepared the submission form.
+- **Commit:** Add development prompts log.
