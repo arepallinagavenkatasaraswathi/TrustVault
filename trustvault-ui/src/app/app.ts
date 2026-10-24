@@ -28,7 +28,7 @@ interface AuditLogItem {
   styleUrl: './app.css'
 })
 export class App implements OnInit {
-  private readonly apiUrl = 'http://localhost:5200/api';
+  private readonly apiUrl = 'https://trustvault-api-x0dh.onrender.com/api';
 
   username = '';
   password = '';
