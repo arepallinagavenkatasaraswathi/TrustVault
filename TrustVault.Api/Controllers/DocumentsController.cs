@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TrustVault.Api.Data;
 using TrustVault.Api.Models;
+using TrustVault.Api.Services;
 
 namespace TrustVault.Api.Controllers;
 
@@ -14,21 +15,20 @@ namespace TrustVault.Api.Controllers;
 public class DocumentsController : ControllerBase
 {
     private readonly TrustVaultDbContext _db;
-    private readonly IWebHostEnvironment _environment;
+    private readonly SupabaseStorageService _storage;
     private readonly ILogger<DocumentsController> _logger;
 
     public DocumentsController(
         TrustVaultDbContext db,
-        IWebHostEnvironment environment,
+        SupabaseStorageService storage,
         ILogger<DocumentsController> logger)
     {
         _db = db;
-        _environment = environment;
+        _storage = storage;
         _logger = logger;
     }
 
-    // List documents owned by the current user
-    // and documents shared with the current user.
+    // List owned documents and documents shared with the user.
     [HttpGet]
     public async Task<IActionResult> GetDocuments()
     {
@@ -60,7 +60,7 @@ public class DocumentsController : ControllerBase
         return Ok(documents);
     }
 
-    // Upload a document.
+    // Upload a document to the private Supabase bucket.
     [HttpPost("upload")]
     [RequestSizeLimit(10_000_000)]
     public async Task<IActionResult> UploadDocument(
@@ -83,27 +83,19 @@ public class DocumentsController : ControllerBase
         if (string.IsNullOrWhiteSpace(originalName))
             return BadRequest("Invalid file name.");
 
-        var storageRoot = Path.Combine(
-            _environment.ContentRootPath,
-            "Storage");
-
-        Directory.CreateDirectory(storageRoot);
-
         var documentId = Guid.NewGuid();
-        var storageName = documentId.ToString("N") + ".bin";
-        var storagePath = Path.Combine(
-            storageRoot,
-            storageName);
+
+        // Store only a generated object key, not a local disk path.
+        var storagePath = documentId.ToString("N") + ".bin";
 
         try
         {
-            await using (var stream = new FileStream(
-                storagePath,
-                FileMode.CreateNew,
-                FileAccess.Write,
-                FileShare.None))
+            await using (var stream = file.OpenReadStream())
             {
-                await file.CopyToAsync(stream);
+                await _storage.UploadAsync(
+                    storagePath,
+                    stream,
+                    "application/octet-stream");
             }
 
             var document = new Document
@@ -146,9 +138,6 @@ public class DocumentsController : ControllerBase
         }
         catch (Exception ex)
         {
-            if (System.IO.File.Exists(storagePath))
-                System.IO.File.Delete(storagePath);
-
             _logger.LogError(
                 ex,
                 "Document upload failed for user {UserId}",
@@ -158,8 +147,7 @@ public class DocumentsController : ControllerBase
         }
     }
 
-    // Download only if the user owns the document
-    // or has an active Read permission.
+    // Download only for the owner or a user with active Read permission.
     [HttpGet("{id:guid}/download")]
     public async Task<IActionResult> DownloadDocument(Guid id)
     {
@@ -199,7 +187,8 @@ public class DocumentsController : ControllerBase
                 Action = "DocumentDownload",
                 Success = false,
                 Timestamp = DateTime.UtcNow,
-                Details = "Download denied: document missing or permission not granted."
+                Details =
+                    "Download denied: document missing or permission not granted."
             });
 
             await _db.SaveChangesAsync();
@@ -216,34 +205,24 @@ public class DocumentsController : ControllerBase
         if (string.IsNullOrWhiteSpace(document.StoragePath))
             return NotFound("Stored file not found.");
 
-        var storageRoot = Path.GetFullPath(
-            Path.Combine(
-                _environment.ContentRootPath,
-                "Storage"));
+        byte[] fileBytes;
 
-        var storagePath = Path.GetFullPath(
-            document.StoragePath);
-
-        var comparison = OperatingSystem.IsWindows()
-            ? StringComparison.OrdinalIgnoreCase
-            : StringComparison.Ordinal;
-
-        if (!storagePath.StartsWith(
-                storageRoot + Path.DirectorySeparatorChar,
-                comparison))
+        try
+        {
+            fileBytes = await _storage.DownloadAsync(
+                document.StoragePath);
+        }
+        catch (HttpRequestException ex)
         {
             _logger.LogError(
-                "Invalid storage path for document {DocumentId}",
+                ex,
+                "Supabase download failed for document {DocumentId}",
                 id);
 
-            return NotFound("Stored file not found.");
+            return StatusCode(
+                StatusCodes.Status502BadGateway,
+                "Unable to retrieve the document from storage.");
         }
-
-        if (!System.IO.File.Exists(storagePath))
-            return NotFound("Stored file not found.");
-
-        var fileBytes = await System.IO.File.ReadAllBytesAsync(
-            storagePath);
 
         _db.AuditLogs.Add(new AuditLog
         {
@@ -264,7 +243,7 @@ public class DocumentsController : ControllerBase
 
         return File(
             fileBytes,
-            "application/octet-stream",
+            document.ContentType ?? "application/octet-stream",
             document.FileName);
     }
 }

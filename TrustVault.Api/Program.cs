@@ -12,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Register Supabase Storage service
+builder.Services.AddHttpClient<SupabaseStorageService>();
+
 // CORS configuration
 builder.Services.AddCors(options =>
 {
@@ -114,7 +117,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Enable Swagger in Development and Production
+// Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 
