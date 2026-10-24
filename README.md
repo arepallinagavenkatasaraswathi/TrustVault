@@ -1,7 +1,12 @@
-﻿# TrustVault - Secure Document Sharing
+# TrustVault - Secure Document Sharing
 
 ## Project Overview
 TrustVault is a secure document-sharing platform that helps users share confidential documents with controlled access and audit logging.
+
+## Live Demo
+- **Live Website:** https://trustvault-saraswathi.vercel.app
+- **Backend API / Swagger:** https://trustvault-api-x0dh.onrender.com/swagger
+- **GitHub Repository:** https://github.com/arepallinagavenkatasaraswathi/TrustVault
 
 ## Features
 - User registration and login
@@ -11,6 +16,7 @@ TrustVault is a secure document-sharing platform that helps users share confiden
 - Revoke document access
 - Audit logs for document activities
 - Angular frontend and ASP.NET Core backend
+- Private Supabase Storage for uploaded documents
 
 ## Technology Stack
 - Frontend: Angular, TypeScript, HTML, CSS
@@ -18,6 +24,15 @@ TrustVault is a secure document-sharing platform that helps users share confiden
 - Database: MySQL
 - ORM: Entity Framework Core
 - Authentication: JWT
+- File Storage: Supabase Storage
+
+## Security Highlights
+- Server-side authorization for document access
+- Document sharing with specific users
+- Access revocation
+- Audit logging for document activities
+- Private file storage
+- Secrets excluded from source control
 
 ## Prerequisites
 - .NET SDK
